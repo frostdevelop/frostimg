@@ -62,7 +62,6 @@ public:
 	virtual std::array<char, 4> getPixel(uint_fast32_t x, uint_fast32_t y) const;
 	virtual bool setPixel(uint_fast32_t x, uint_fast32_t y, char r, char g, char b);
 	virtual void setSize(uint_fast32_t width, uint_fast32_t height);
-	//static frostbmpimg* from(std::string name);
 	frimg::bmpHeader getBmpHeader() const;
 	void setBmpHeader(frimg::bmpHeader iheader);
 	frimg::infoHeader getInfoHeader() const;
@@ -73,7 +72,6 @@ public:
 	void setBit(uint_fast16_t nbitc);
 	bool isCorrupt() const;
 	std::array<char, 4> operator[](int index) const;
-	//int readFrom(std::string name);
 protected:
 	frimg::bmpHeader header;
 	frimg::infoHeader infoheader;

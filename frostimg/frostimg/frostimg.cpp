@@ -32,8 +32,6 @@ frostbmpimg::frostbmpimg(std::string name)
 {
 	std::ifstream rfile(name, std::ios::binary); // + ".bmp"
 	if (!rfile.is_open()) { corrupt = true;return; } //1
-	//frimg::bmpHeader bmpheader;
-	//frimg::infoHeader infoheader;
 	header.size = rfile.tellg();
 	rfile.seekg(0, std::ios::end);
 	header.size = static_cast<uint_fast32_t>(rfile.tellg()) - header.size;
@@ -60,12 +58,10 @@ frostbmpimg::frostbmpimg(std::string name)
 	infoheader.width = dtt::byte2ufast32(tempbuf4, true); //uint_fast32_t width
 	rfile.read(tempbuf4, 4);
 	infoheader.height = dtt::byte2ufast32(tempbuf4, true); //uint_fast32_t height
-	//frostbmpimg* outimg = new frostbmpimg(infoheader.width, infoheader.height);
 	rfile.read(tempbuf2, 2);
 	infoheader.planes = dtt::byte2ufast16(tempbuf2, true);
 	if (infoheader.planes != 1) { corrupt = true;return; }
 	rfile.read(tempbuf2, 2);
-	//std::cout << "chkpt1" << std::endl;
 	infoheader.bitc = dtt::byte2ufast16(tempbuf2, true);
 	switch (infoheader.bitc) {
 	case 16:
@@ -88,9 +84,7 @@ frostbmpimg::frostbmpimg(std::string name)
 	infoheader.colorsimportant = dtt::byte2ufast32(tempbuf4, true);
 	const uint_fast8_t byteperpix = (infoheader.bitc == 24 ? 3 : 2);
 	infoheader.rowpad = (4 * ceil(float(infoheader.width * byteperpix) / 4.0)) - infoheader.width * byteperpix;
-	//outimg->setInfoHeader(infoheader);
 	rfile.seekg(header.offset);
-	//char (*raster)[3] = new char[infoheader.width * infoheader.height][3];
 	raster = new char[infoheader.width * infoheader.height][3];
 	char tempbuf3[3];
 	char tempbuf;
@@ -120,11 +114,6 @@ frostbmpimg::frostbmpimg(std::string name)
 		break;
 	}
 	rfile.close();
-	//outimg->setRaster(raster);
-	/*
-	std::array<char, 4> color = outimg->getPixel(0, 0);
-	std::cout << color[0] << ',' << color[1] << ',' << color[2] << std::endl;
-	*/
 }
 
 void frostbmpimg::writeFile(std::string name) const
@@ -135,12 +124,6 @@ void frostbmpimg::writeFile(std::string name) const
 	wfile.write(dtt::ufast162byte(header.reserved1, true).data(), 2);
 	wfile.write(dtt::ufast162byte(header.reserved2, true).data(), 2);
 	wfile.write(dtt::ufast322byte(header.offset, true).data(), 4);
-	/*
-	char* gap = new char[header.offset];
-	wfile.write(gap, header.offset);
-	delete[] gap;
-	*/
-	//const uint_fast16_t dibsize = 40;
 	wfile.write(dtt::ufast322byte(infoheader.size, true).data(), 4);
 	wfile.write(dtt::ufast322byte(infoheader.width, true).data(), 4);
 	wfile.write(dtt::ufast322byte(infoheader.height, true).data(), 4);
@@ -149,7 +132,6 @@ void frostbmpimg::writeFile(std::string name) const
 	wfile.write(dtt::ufast322byte(infoheader.compression, true).data(), 4);
 	//Add compression in future update :)
 	wfile.write(dtt::ufast322byte(uint_fast32_t(0), true).data(), 4); //ImageSize
-	//std::array<char, 4> defresa = dtt::ufast322byte(uint_fast32_t(2834));
 	wfile.write(dtt::ufast322byte(infoheader.xperm, true).data(), 4); //XPPM
 	wfile.write(dtt::ufast322byte(infoheader.yperm, true).data(), 4); //YPPM
 	wfile.write(dtt::ufast322byte(uint_fast32_t(0), true).data(), 4); //Colors Used
@@ -161,8 +143,6 @@ void frostbmpimg::writeFile(std::string name) const
 			switch (infoheader.bitc) {
 			case 24:
 				wfile.write(&raster[post][0], 3);
-				//if (x == 10) { break; }
-				//std::cout << std::to_string(static_cast<unsigned char>(raster[post][2])) + ',' + std::to_string(static_cast<unsigned char>(raster[post][1])) + ',' + std::to_string(static_cast<unsigned char>(raster[post][0])) << std::endl;
 				break;
 			case 16:
 				wfile.write(&raster[post][0], 2);
@@ -171,13 +151,8 @@ void frostbmpimg::writeFile(std::string name) const
 			default:
 				std::cout << "Invalid bitcount: " << infoheader.bitc << std::endl;
 			}
-			//if (x == 10) { char temps = 10;wfile.write(&temps, 1);break; }
 		}
 		for (uint_fast8_t i = 0;i < infoheader.rowpad;i++) { wfile.write(&czro, 1);std::cout << "spaced" << std::endl; }
-		//std::cout << std::to_string(infoheader.rowpad) << std::endl;
-		//break;
-		//std::cout << (4 * ceil(float(infoheader.width*3) / 4.0)) - infoheader.width*3 << std::endl;
-		//wfile.write(0, (4 * ceil(float(infoheader.width) / 4.0)) - infoheader.width);
 	}
 	wfile.close();
 }
@@ -285,7 +260,7 @@ frostbmpimg::~frostbmpimg() {
 
 std::array<char, 4> frostbmpimg::getPixel(uint_fast32_t x, uint_fast32_t y) const
 {
-	uint_fast32_t pos = (((infoheader.height-y-1) * infoheader.width) + x); //(infoheader.width*infoheader.height) - ((y * infoheader.width) + x) - 1
+	uint_fast32_t pos = (((infoheader.height-y-1) * infoheader.width) + x);
 	switch (infoheader.bitc) {
 	case 24:
 		return std::array<char, 4>({ raster[pos][2], raster[pos][1], raster[pos][0], 0});
@@ -326,13 +301,6 @@ void frostbmpimg::setSize(uint_fast32_t width, uint_fast32_t height)
 	header.size = 54 + height * (width * 3 + infoheader.rowpad);
 }
 
-/*
-frostbmpimg* frostbmpimg::from(std::string name)
-{
-	
-}
-*/
-
 frimg::bmpHeader frostbmpimg::getBmpHeader() const
 {
 	return header;
@@ -366,7 +334,6 @@ uint_fast32_t frostbmpimg::getHeight() const
 void frostbmpimg::setRaster(char(*nraster)[3])
 {
 	raster = nraster;
-	//std::cout << raster[0][2] << ',' << raster[0][1] << ',' << raster[0][2] << std::endl;
 }
 
 void frostbmpimg::setBit(uint_fast16_t nbitc)
@@ -386,13 +353,6 @@ std::array<char, 4> frostbmpimg::operator[](int index) const
 {
 	return std::array<char, 4>({ raster[index][2], raster[index][1],  raster[index][0], 0 });
 }
-
-/*
-int frostbmpimg::readFrom(std::string name)
-{
-	return 0;
-}
-*/
 
 void frostimg::writeFile(std::string name)
 {

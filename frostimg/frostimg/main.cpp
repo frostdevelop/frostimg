@@ -15,17 +15,11 @@ void drawTest(frostimg &img) {
 }
 
 int main() {
-	/*
 	frostbmpimg image(3,3,0,0,0);
 	drawTest(image);
 	image.writeFile("test.bmp");
-	*/
 	frostbmpimg rimg = frostbmpimg("tester.bmp"); //* //larger than 32x is rpetty strange
 	std::cout << rimg.getWidth() << ',' << rimg.getHeight() << std::endl;
-	/*
-	std::array<char, 4> color = rimg->getPixel(0, 0);
-	std::cout << color[0] << ',' << color[1] << ',' << color[2] << std::endl;
-	*/
 	//rimg->setPixel(1, 2, 0, 255, 187);
 	//rimg->setPixel(0, 0, 0, 255, 167);
 	drawTest(rimg);
@@ -38,10 +32,5 @@ int main() {
 	}
 	*/
 	rimg.writeFile("test2.bmp");
-	//delete rimg;
-	/*
-	std::array<char, 4> temp = image.getPixel(1, 1);
-	std::cout << std::to_string(static_cast<unsigned char>(temp[0])) << ',' << std::to_string(static_cast<unsigned char>(temp[1])) << ',' << std::to_string(static_cast<unsigned char>(temp[2])) << std::endl;
-	*/
 	return 0;
 }
