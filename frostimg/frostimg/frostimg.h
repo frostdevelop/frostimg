@@ -46,7 +46,7 @@ class frostimg {
 public:
 	virtual void writeFile(std::string name);
 	virtual frost::databuf writeBuf();
-	virtual std::array<char, 4> getPixel(uint_fast32_t x, uint_fast32_t y);
+	virtual std::array<char, 4> getPixel(uint_fast32_t x, uint_fast32_t y) const;
 	virtual bool setPixel(uint_fast32_t x, uint_fast32_t y, char r, char g, char b);
 	virtual void setSize(uint_fast32_t width, uint_fast32_t height);
 	static frostimg from(std::string name);
@@ -55,18 +55,30 @@ public:
 class frostbmpimg : public frostimg {
 public:
 	frostbmpimg(uint_fast32_t width, uint_fast32_t height, char dr, char dg, char db);
+	frostbmpimg(std::string name);
 	~frostbmpimg();
-	virtual void writeFile(std::string name);
-	virtual frost::databuf writeBuf();
-	virtual std::array<char, 4> getPixel(uint_fast32_t x, uint_fast32_t y);
+	virtual void writeFile(std::string name) const;
+	virtual frost::databuf writeBuf() const;
+	virtual std::array<char, 4> getPixel(uint_fast32_t x, uint_fast32_t y) const;
 	virtual bool setPixel(uint_fast32_t x, uint_fast32_t y, char r, char g, char b);
 	virtual void setSize(uint_fast32_t width, uint_fast32_t height);
-	static frostbmpimg from(std::string name);
+	//static frostbmpimg* from(std::string name);
+	frimg::bmpHeader getBmpHeader() const;
+	void setBmpHeader(frimg::bmpHeader iheader);
+	frimg::infoHeader getInfoHeader() const;
+	void setInfoHeader(frimg::infoHeader iheader);
+	uint_fast32_t getWidth() const;
+	uint_fast32_t getHeight() const;
+	void setRaster(char (*nraster)[3]);
+	void setBit(uint_fast16_t nbitc);
+	bool isCorrupt() const;
+	std::array<char, 4> operator[](int index) const;
 	//int readFrom(std::string name);
 protected:
 	frimg::bmpHeader header;
 	frimg::infoHeader infoheader;
 	char (*raster)[3];
+	bool corrupt;
 };
 
 /*
